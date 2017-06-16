@@ -73,6 +73,13 @@ namespace cppback
         }
     };
 
+    class TaskStoppedByKillSignal : public std::runtime_error
+    {
+    public:
+        TaskStoppedByKillSignal(const std::string& msg) : runtime_error(msg)
+        {};
+    };
+
     class BackgroundTaskManager
     {
     public:
