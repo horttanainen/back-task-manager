@@ -6,6 +6,7 @@ namespace cppback
         std::future<void> shouldDie_;
         std::promise<void> killBackgroundTasks_;
 
+        friend class BackgroundTaskManager;
     public:
         static BackSingleton& instance()
         {
@@ -69,6 +70,34 @@ namespace cppback
             }
             std::this_thread::sleep_for(wait);
             return running_ == 0;
+        }
+    };
+
+    class BackgroundTaskManager
+    {
+    public:
+        template<typename LambdaWithNoArgs>
+        static void addTask(LambdaWithNoArgs&& func)
+        {
+            BackSingleton::instance().addTask(std::move(func));
+        }
+        static void kill()
+        {
+            BackSingleton::instance().kill();
+        }
+        static bool isKillSignalSet()
+        {
+            return BackSingleton::instance().isKillSignalSet();
+        }
+
+        static bool isKillSignalSet(std::chrono::milliseconds wait)
+        {
+            return BackSingleton::instance().isKillSignalSet(wait);
+        }
+
+        static bool areBackgroundTasksDead(std::chrono::milliseconds wait)
+        {
+            return BackSingleton::instance().areBackgroundTasksDead(wait);
         }
     };
 }
