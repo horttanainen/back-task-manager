@@ -1,5 +1,14 @@
 namespace cppback
 {
+    template<typename LambdaWithNoArgs>
+    auto spin(LambdaWithNoArgs&& func)
+    {
+        auto task = std::packaged_task<std::result_of_t<LambdaWithNoArgs()>()>{ std::forward<LambdaWithNoArgs>(func) };
+        auto res = task.get_future();
+        std::thread{ std::move(task) }.detach();
+        return res;
+    }
+
     class BackSingleton
     {
         std::atomic_uint running_ = 0;
@@ -31,7 +40,7 @@ namespace cppback
             {
                 return;
             }
-            cppext::spin([&, func = std::move(func)]() mutable
+            spin([&, func = std::move(func)]() mutable
             {
                 ++running_;
                 try
