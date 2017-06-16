@@ -8,25 +8,25 @@ namespace cppback
         template<typename LambdaWithNoArgs>
         static void addTask(LambdaWithNoArgs&& func)
         {
-            BackSingleton::instance().addTask(std::move(func));
+            BackgroundManagerSingleton::instance().addTask(std::move(func));
         }
         static void kill()
         {
-            BackSingleton::instance().kill();
+            BackgroundManagerSingleton::instance().kill();
         }
         static bool isKillSignalSet()
         {
-            return BackSingleton::instance().isKillSignalSet();
+            return BackgroundManagerSingleton::instance().isKillSignalSet();
         }
 
         static bool isKillSignalSet(std::chrono::milliseconds wait)
         {
-            return BackSingleton::instance().isKillSignalSet(wait);
+            return BackgroundManagerSingleton::instance().isKillSignalSet(wait);
         }
 
         static bool areBackgroundTasksDead(std::chrono::milliseconds wait)
         {
-            return BackSingleton::instance().areBackgroundTasksDead(wait);
+            return BackgroundManagerSingleton::instance().areBackgroundTasksDead(wait);
         }
 
         static void sleepInIntervals(std::chrono::milliseconds sleepDuration, std::chrono::milliseconds interval, const std::string& taskName = "")
