@@ -99,5 +99,20 @@ namespace cppback
         {
             return BackSingleton::instance().areBackgroundTasksDead(wait);
         }
+
+        static void sleepInIntervals(std::chrono::milliseconds sleepDuration, std::chrono::milliseconds interval, const std::string& taskName = "")
+        {
+            using namespace std::literals;
+            std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+            auto durationSlept = 0ms;
+            while(durationSlept < sleepDuration)
+            {
+                if(BackgroundTaskManager::isKillSignalSet(interval))
+                {
+                    throw TaskStoppedByKillSignal{ taskName };
+                }
+                durationSlept = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
+            }
+        }
     };
 }
