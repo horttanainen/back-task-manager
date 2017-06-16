@@ -1,5 +1,12 @@
 #ifndef BACKGROUND_MANAGER_H
 #define BACKGROUND_MANAGER_H
+
+#include "cppback/background-manager-singleton.h"
+#include "cppback/error.h"
+
+#include <chrono>
+#include <string>
+
 namespace cppback
 {
     class BackgroundManager

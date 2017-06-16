@@ -1,5 +1,10 @@
 #ifndef LOOP_SIGNAL_CHECKER_H
 #define LOOP_SIGNAL_CHECKER_H
+
+#include "cppback/background-manager.h"
+
+#include <string>
+
 namespace cppback
 {
     class LoopSignalChecker

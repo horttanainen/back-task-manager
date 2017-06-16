@@ -1,5 +1,10 @@
 #ifndef SPIN_H
 #define SPIN_H
+
+#include <future>
+#include <type_traits>
+#include <thread>
+
 namespace cppback
 {
     template<typename LambdaWithNoArgs>

@@ -13,6 +13,11 @@ add_library(
     ${SOURCE_FILES}
     )
 
+target_include_directories(
+	${PROJECT_NAME}
+    PUBLIC ${PROJECT_SOURCE_DIR}/..
+)
+
 source_group("Src" FILES ${SOURCE_FILES})
 
 set(
