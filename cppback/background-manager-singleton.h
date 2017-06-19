@@ -1,5 +1,10 @@
 #ifndef BACKGROUND_MANAGER_SINGLETON_H
 #define BACKGROUND_MANAGER_SINGLETON_H
+
+#include "cppback/spin.h"
+
+#include <future>
+
 namespace cppback
 {
     class BackgroundManagerSingleton
