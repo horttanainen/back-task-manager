@@ -38,9 +38,9 @@ namespace cppback
             {
                 return;
             }
-            spin([&, func = std::move(func)]() mutable
+            spin([&running = running_, func = std::move(func)]() mutable
             {
-                ++running_;
+                ++running;
                 try
                 {
                     func();
@@ -48,12 +48,16 @@ namespace cppback
                 catch(...)
                 {
                 }
-                --running_;
+                --running;
             });
         }
 
         void kill()
         {
+            if(isKillSignalSet())
+            {
+                return;
+            }
             killBackgroundTasks_.set_value();
         }
 
