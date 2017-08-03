@@ -9,11 +9,11 @@ namespace cppback
 {
     class LoopSignalChecker
     {
-        int counter_ = 0;
-        const int interval_;
+        size_t counter_ = 0;
+        const size_t interval_;
         const std::string task_;
     public:
-        LoopSignalChecker(int intervalToCheck, std::string task = "")
+        LoopSignalChecker(size_t intervalToCheck, std::string task = "")
             :interval_{ intervalToCheck }
             , task_{ task }
         {}
