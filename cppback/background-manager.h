@@ -1,7 +1,6 @@
 #ifndef BACKGROUND_MANAGER_SINGLETON_H
 #define BACKGROUND_MANAGER_SINGLETON_H
 
-#include "cppback/spin.h"
 #include "cppback/error.h"
 
 #include <future>
@@ -9,6 +8,18 @@
 
 namespace cppback
 {
+    namespace
+    {
+        template<typename LambdaWithNoArgs>
+        auto spin(LambdaWithNoArgs&& func)
+        {
+            auto task = std::packaged_task<std::result_of_t<LambdaWithNoArgs()>()>{ std::forward<LambdaWithNoArgs>(func) };
+            auto res = task.get_future();
+            std::thread{ std::move(task) }.detach();
+            return res;
+        }
+    }
+
     template <class...>
     using void_t = void;
 
