@@ -35,17 +35,23 @@ namespace cppback
         }
 
         template<typename LambdaWithNoArgs>
-        auto addTask(LambdaWithNoArgs&& func)
+        decltype(auto) addTask(LambdaWithNoArgs&& func)
+        {
+            if(isKillSignalSet())
+            {
+                std::runtime_error("Kill signal is already set.");
+            }
+            return addTaskImpl(std::move(func));
+        }
+
+        template<typename LambdaWithNoArgs>
+        auto addTaskImpl(LambdaWithNoArgs&& func)
             ->std::enable_if_t
             <
             !(std::is_same_v<std::result_of_t<LambdaWithNoArgs()>, void_t<>>),
             std::future<std::result_of_t<LambdaWithNoArgs()>>
             >
         {
-            if(isKillSignalSet())
-            {
-                std::runtime_error("Kill signal is already set.");
-            }
             return spin([&running = running_, func = std::move(func)]() mutable
             {
                 std::result_of_t<LambdaWithNoArgs()> result;
@@ -65,17 +71,13 @@ namespace cppback
         }
 
         template<typename LambdaWithNoArgs>
-        auto addTask(LambdaWithNoArgs&& func)
+        auto addTaskImpl(LambdaWithNoArgs&& func)
             ->std::enable_if_t
             <
             (std::is_same_v<std::result_of_t<LambdaWithNoArgs()>, void_t<>>),
             std::future<void>
             >
         {
-            if(isKillSignalSet())
-            {
-                std::runtime_error("Kill signal is already set.");
-            }
             return spin([&running = running_, func = std::move(func)]() mutable
             {
                 ++running;
@@ -113,7 +115,7 @@ namespace cppback
             return shouldDie_.wait_for(wait) == std::future_status::ready;
         }
 
-        bool areBackgroundTasksDead(std::chrono::milliseconds wait) const
+        bool isDead(std::chrono::milliseconds wait) const
         {
             if(running_ == 0)
             {
