@@ -18,11 +18,11 @@ namespace cppback
             , task_{ task }
         {}
 
-        void check()
+        void check(const BackgroundManager& backroundManager)
         {
             if(counter_ % interval_ == 0)
             {
-                if(BackgroundManager::isKillSignalSet())
+                if(backroundManager.isKillSignalSet())
                 {
                     throw TaskStoppedByKillSignal{ task_ };
                 }
