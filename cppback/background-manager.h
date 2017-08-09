@@ -23,6 +23,14 @@ namespace cppback
     template <class...>
     using void_t = void;
 
+    class AlreadyKilled : public std::runtime_error
+    {
+    public:
+        AlreadyKilled(const std::string msg)
+            : runtime_error(msg)
+        {};
+    };
+
     class BackgroundManager
     {
         std::atomic_uint running_ = 0;
@@ -39,7 +47,7 @@ namespace cppback
         {
             if(isKillSignalSet())
             {
-                std::runtime_error("Kill signal is already set.");
+                throw AlreadyKilled("Can't add task after kill signal is already set.");
             }
             return addTaskImpl(std::move(func));
         }
