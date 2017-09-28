@@ -45,11 +45,14 @@ namespace cppback
         template<typename LambdaWithNoArgs>
         decltype(auto) addTask(LambdaWithNoArgs&& func)
         {
-            if(isKillSignalSet())
+            return spin([&, func = std::move(func)]() mutable
             {
-                throw AlreadyKilled("Can't add task after kill signal is already set.");
-            }
-            return addTaskImpl(std::move(func));
+                if(isKillSignalSet())
+                {
+                    throw AlreadyKilled("Can't add task after kill signal is already set.");
+                }
+                return addTaskImpl(std::move(func));
+            });
         }
 
         template<typename LambdaWithNoArgs>
@@ -57,25 +60,22 @@ namespace cppback
             ->std::enable_if_t
             <
             !(std::is_same_v<std::result_of_t<LambdaWithNoArgs()>, void_t<>>),
-            std::future<std::result_of_t<LambdaWithNoArgs()>>
+            std::result_of_t<LambdaWithNoArgs()>
             >
         {
-            return spin([&running = running_, func = std::move(func)]() mutable
+            std::result_of_t<LambdaWithNoArgs()> result;
+            ++running_;
+            try
             {
-                std::result_of_t<LambdaWithNoArgs()> result;
-                ++running;
-                try
-                {
-                    result = func();
-                }
-                catch(const std::exception& e)
-                {
-                    --running;
-                    throw e;
-                }
-                --running;
-                return std::move(result);
-            });
+                result = func();
+            }
+            catch(const std::exception& e)
+            {
+                --running_;
+                throw e;
+            }
+            --running_;
+            return result;
         }
 
         template<typename LambdaWithNoArgs>
@@ -83,23 +83,20 @@ namespace cppback
             ->std::enable_if_t
             <
             (std::is_same_v<std::result_of_t<LambdaWithNoArgs()>, void_t<>>),
-            std::future<void>
+            void
             >
         {
-            return spin([&running = running_, func = std::move(func)]() mutable
+            ++running_;
+            try
             {
-                ++running;
-                try
-                {
-                   func();
-                }
-                catch(const std::exception& e)
-                {
-                    --running;
-                    throw e;
-                }
-                --running;
-            });
+                func();
+            }
+            catch(const std::exception& e)
+            {
+                --running_;
+                throw e;
+            }
+            --running_;
         }
 
         void kill()
@@ -132,7 +129,6 @@ namespace cppback
             std::this_thread::sleep_for(wait);
             return running_ == 0;
         }
-
 
         void sleepInIntervals(std::chrono::milliseconds sleepDuration, std::chrono::milliseconds interval, const std::string& taskName = "") const
         {
